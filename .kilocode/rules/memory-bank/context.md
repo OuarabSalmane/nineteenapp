@@ -23,6 +23,7 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Added numerics field to verse objects and bismillahNumerics to surah objects in quran.json
 - [x] Updated verse component to show StatBadge row (كلمات / حروف / قيمة عددية) when numerics available
 - [x] Added scripts/scrape-numerical.mjs for future scraping of other surahs
+- [x] Added numerical data for Surah Al-Humaza (104) - 9 verses + bismillah
 
 ## Current Structure
 
