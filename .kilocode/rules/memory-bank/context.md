@@ -19,6 +19,10 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] All 114 surahs scraped and stored as static JSON data in src/data/quran.json (~1.6MB)
 - [x] Page updated to use static data (no API calls needed), instant loading
 - [x] Special handling: At-Tawbah (surah 9) has no Bismillah; Al-Fatihah verse 1 IS the Bismillah
+- [x] Scraped numerical data (word count, letter count, abjad value) for Al-Fatihah (7 verses) and Al-Hadid (29 verses + bismillah) from ghazi369.pythonanywhere.com/nineteen
+- [x] Added numerics field to verse objects and bismillahNumerics to surah objects in quran.json
+- [x] Updated verse component to show StatBadge row (كلمات / حروف / قيمة عددية) when numerics available
+- [x] Added scripts/scrape-numerical.mjs for future scraping of other surahs
 
 ## Current Structure
 
