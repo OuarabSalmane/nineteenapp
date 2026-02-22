@@ -16,6 +16,9 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Recipe system for common features
 - [x] Quran web scraper for ghazi369.pythonanywhere.com/surat/[name]
 - [x] All 114 surahs added to quick select dropdown (replaced 10-item button list with full dropdown)
+- [x] All 114 surahs scraped and stored as static JSON data in src/data/quran.json (~1.6MB)
+- [x] Page updated to use static data (no API calls needed), instant loading
+- [x] Special handling: At-Tawbah (surah 9) has no Bismillah; Al-Fatihah verse 1 IS the Bismillah
 
 ## Current Structure
 

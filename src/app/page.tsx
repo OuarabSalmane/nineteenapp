@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import quranData from "@/data/quran.json";
 
 interface Verse {
   number: number;
@@ -8,11 +9,20 @@ interface Verse {
 }
 
 interface SurahData {
+  surahNumber: number;
   name: string;
   bismillah: string;
   verses: Verse[];
   rawText: string;
 }
+
+// Type-cast the imported JSON
+const allSurahsData = quranData as SurahData[];
+
+// Build a lookup map by surah name for fast access
+const surahByName = new Map<string, SurahData>(
+  allSurahsData.map((s) => [s.name, s])
+);
 
 function numberToArabicIndic(num: number): string {
   const digits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
@@ -23,37 +33,36 @@ function numberToArabicIndic(num: number): string {
 }
 
 export default function Home() {
-  const [surahName, setSurahName] = useState("يونس");
+  const [selectedSurahName, setSelectedSurahName] = useState(
+    allSurahsData[9].name // يونس (surah 10, index 9)
+  );
   const [data, setData] = useState<SurahData | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"verses" | "raw">("verses");
   const [copiedVerse, setCopiedVerse] = useState<number | null>(null);
 
-  const scrape = useCallback(async () => {
-    if (!surahName.trim()) return;
-    setLoading(true);
-    setError(null);
-    setData(null);
-
-    try {
-      const res = await fetch(
-        `/api/scrape?surah=${encodeURIComponent(surahName.trim())}`
-      );
-      const json = await res.json();
-
-      if (!res.ok) {
-        setError(json.error || "Failed to fetch data");
+  const loadSurah = useCallback(
+    (name: string) => {
+      setError(null);
+      const surah = surahByName.get(name);
+      if (!surah) {
+        setError(`Surah "${name}" not found in data`);
+        setData(null);
         return;
       }
+      setData(surah);
+    },
+    []
+  );
 
-      setData(json);
-    } catch (err) {
-      setError("Network error: " + String(err));
-    } finally {
-      setLoading(false);
-    }
-  }, [surahName]);
+  const handleSelectChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const name = e.target.value;
+      setSelectedSurahName(name);
+      loadSurah(name);
+    },
+    [loadSurah]
+  );
 
   const copyVerse = useCallback(async (verse: Verse) => {
     const text = `${verse.text} (${numberToArabicIndic(verse.number)})`;
@@ -68,123 +77,6 @@ export default function Home() {
     await navigator.clipboard.writeText(text);
   }, [data]);
 
-  const allSurahs = [
-    "الفاتحة",
-    "البقرة",
-    "آل_عمران",
-    "النساء",
-    "المائدة",
-    "الأنعام",
-    "الأعراف",
-    "الأنفال",
-    "التوبة",
-    "يونس",
-    "هود",
-    "يوسف",
-    "الرعد",
-    "إبراهيم",
-    "الحجر",
-    "النحل",
-    "الإسراء",
-    "الكهف",
-    "مريم",
-    "طه",
-    "الأنبياء",
-    "الحج",
-    "المؤمنون",
-    "النور",
-    "الفرقان",
-    "الشعراء",
-    "النمل",
-    "القصص",
-    "العنكبوت",
-    "الروم",
-    "لقمان",
-    "السجدة",
-    "الأحزاب",
-    "سبأ",
-    "فاطر",
-    "يس",
-    "الصافات",
-    "ص",
-    "الزمر",
-    "غافر",
-    "فصلت",
-    "الشورى",
-    "الزخرف",
-    "الدخان",
-    "الجاثية",
-    "الأحقاف",
-    "محمد",
-    "الفتح",
-    "الحجرات",
-    "ق",
-    "الذاريات",
-    "الطور",
-    "النجم",
-    "القمر",
-    "الرحمن",
-    "الواقعة",
-    "الحديد",
-    "المجادلة",
-    "الحشر",
-    "الممتحنة",
-    "الصف",
-    "الجمعة",
-    "المنافقون",
-    "التغابن",
-    "الطلاق",
-    "التحريم",
-    "الملك",
-    "القلم",
-    "الحاقة",
-    "المعارج",
-    "نوح",
-    "الجن",
-    "المزمل",
-    "المدثر",
-    "القيامة",
-    "الإنسان",
-    "المر‏سلات",
-    "النبأ",
-    "النازعات",
-    "عبس",
-    "التكوير",
-    "الإنفطار",
-    "المطففين",
-    "الإنشقاق",
-    "البروج",
-    "الطارق",
-    "الأعلى",
-    "الغاشية",
-    "الفجر",
-    "البلد",
-    "الشمس",
-    "الليل",
-    "الضحى",
-    "الشرح",
-    "التين",
-    "العلق",
-    "القدر",
-    "البينة",
-    "الزلزلة",
-    "العاديات",
-    "القارعة",
-    "التكاثر",
-    "العصر",
-    "الهمزة",
-    "الفيل",
-    "قريش",
-    "الماعون",
-    "الكوثر",
-    "الكافرون",
-    "النصر",
-    "المسد",
-    "الإخلاص",
-    "الفلق",
-    "الناس",
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-teal-900 to-emerald-900">
       {/* Header */}
@@ -195,96 +87,54 @@ export default function Home() {
           </div>
           <div>
             <h1 className="text-white font-bold text-lg leading-tight">
-              Quran Scraper
+              القرآن الكريم
             </h1>
             <p className="text-emerald-400 text-xs">
-              ghazi369.pythonanywhere.com
+              {allSurahsData.length} سورة · بيانات محلية
             </p>
           </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-        {/* Search Section */}
+        {/* Surah Select Section */}
         <div className="bg-emerald-900/40 border border-emerald-700/40 rounded-2xl p-6 backdrop-blur-sm">
           <h2 className="text-emerald-300 text-sm font-semibold uppercase tracking-wider mb-4">
-            Enter Surah Name (Arabic)
+            اختر السورة
           </h2>
 
           <div className="flex gap-3">
-            <input
-              type="text"
-              value={surahName}
-              onChange={(e) => setSurahName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && scrape()}
-              placeholder="e.g. يونس"
-              dir="rtl"
-              className="flex-1 bg-emerald-950/60 border border-emerald-600/40 rounded-xl px-4 py-3 text-white placeholder-emerald-600 text-right text-lg focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all"
-            />
-            <button
-              onClick={scrape}
-              disabled={loading || !surahName.trim()}
-              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-800 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 min-w-[120px] justify-center"
-            >
-              {loading ? (
-                <>
-                  <svg
-                    className="animate-spin w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  Scraping...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                  Scrape
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Quick Select */}
-          <div className="mt-4">
-            <p className="text-emerald-500 text-xs mb-2">Quick select (all 114 surahs):</p>
             <select
-              value={surahName}
-              onChange={(e) => setSurahName(e.target.value)}
+              value={selectedSurahName}
+              onChange={handleSelectChange}
               dir="rtl"
-              className="w-full bg-emerald-950/60 border border-emerald-600/40 rounded-xl px-4 py-3 text-white text-right text-base focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all cursor-pointer"
+              className="flex-1 bg-emerald-950/60 border border-emerald-600/40 rounded-xl px-4 py-3 text-white text-right text-lg focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all cursor-pointer"
             >
-              {allSurahs.map((s, i) => (
-                <option key={s} value={s} className="bg-emerald-950 text-white">
-                  {i + 1}. {s}
+              {allSurahsData.map((s) => (
+                <option key={s.surahNumber} value={s.name} className="bg-emerald-950 text-white">
+                  {s.surahNumber}. {s.name}
                 </option>
               ))}
             </select>
+            <button
+              onClick={() => loadSurah(selectedSurahName)}
+              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 min-w-[120px] justify-center"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                />
+              </svg>
+              عرض
+            </button>
           </div>
         </div>
 
@@ -317,7 +167,7 @@ export default function Home() {
             {/* Surah Header */}
             <div className="bg-gradient-to-r from-emerald-800/50 to-teal-800/50 border border-emerald-600/40 rounded-2xl p-6 text-center">
               <div className="text-emerald-400 text-xs uppercase tracking-widest mb-2">
-                Surah
+                Surah {data.surahNumber}
               </div>
               <h2
                 className="text-white text-4xl font-bold mb-3"
@@ -350,23 +200,7 @@ export default function Home() {
                       d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                     />
                   </svg>
-                  {data.verses.length} verses
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
-                    />
-                  </svg>
-                  Source: ghazi369.pythonanywhere.com
+                  {data.verses.length} آية
                 </span>
               </div>
             </div>
@@ -381,7 +215,7 @@ export default function Home() {
                     : "bg-emerald-900/40 border border-emerald-700/40 text-emerald-300 hover:text-white"
                 }`}
               >
-                Parsed Verses ({data.verses.length})
+                الآيات ({data.verses.length})
               </button>
               <button
                 onClick={() => setActiveTab("raw")}
@@ -391,7 +225,7 @@ export default function Home() {
                     : "bg-emerald-900/40 border border-emerald-700/40 text-emerald-300 hover:text-white"
                 }`}
               >
-                Raw Text
+                النص الكامل
               </button>
               <div className="flex-1" />
               <button
@@ -411,7 +245,7 @@ export default function Home() {
                     d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                   />
                 </svg>
-                Copy All
+                نسخ الكل
               </button>
             </div>
 
@@ -444,7 +278,7 @@ export default function Home() {
                           {verse.text}
                         </p>
                         <p className="text-emerald-500 text-xs mt-2 text-right">
-                          Verse {verse.number} of {data.name}
+                          الآية {numberToArabicIndic(verse.number)} من سورة {data.name}
                         </p>
                       </div>
 
@@ -504,29 +338,14 @@ export default function Home() {
           </div>
         )}
 
-        {/* Empty State */}
-        {!data && !loading && !error && (
-          <div className="text-center py-16 text-emerald-600">
-            <div className="text-6xl mb-4">🕌</div>
-            <p className="text-lg font-medium text-emerald-400">
-              Enter a Surah name to begin scraping
-            </p>
-            <p className="text-sm mt-2">
-              Data sourced from ghazi369.pythonanywhere.com
-            </p>
+        {/* Empty state */}
+        {!data && !error && (
+          <div className="text-center py-16 text-emerald-500">
+            <div className="text-6xl mb-4">📖</div>
+            <p className="text-lg">اختر سورة من القائمة أعلاه لعرضها</p>
           </div>
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-emerald-800/50 mt-12 py-6 text-center text-emerald-600 text-sm">
-        <p>
-          Scraping{" "}
-          <code className="text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded text-xs">
-            ghazi369.pythonanywhere.com/surat/[name]
-          </code>
-        </p>
-      </footer>
     </div>
   );
 }
