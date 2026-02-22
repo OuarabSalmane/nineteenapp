@@ -64,18 +64,49 @@ export default function Home() {
     [loadSurah]
   );
 
-  const copyVerse = useCallback(async (verse: Verse) => {
-    const text = `${verse.text} (${numberToArabicIndic(verse.number)})`;
-    await navigator.clipboard.writeText(text);
-    setCopiedVerse(verse.number);
-    setTimeout(() => setCopiedVerse(null), 2000);
+  const copyToClipboard = useCallback((text: string) => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(() => {
+        // Fallback if clipboard API is blocked
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      });
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      return Promise.resolve();
+    }
   }, []);
+
+  const copyVerse = useCallback(
+    async (verse: Verse) => {
+      const text = `${verse.text} (${numberToArabicIndic(verse.number)})`;
+      await copyToClipboard(text);
+      setCopiedVerse(verse.number);
+      setTimeout(() => setCopiedVerse(null), 2000);
+    },
+    [copyToClipboard]
+  );
 
   const copyAll = useCallback(async () => {
     if (!data) return;
     const text = data.verses.map((v) => `${v.text}`).join("\n\n");
-    await navigator.clipboard.writeText(text);
-  }, [data]);
+    await copyToClipboard(text);
+  }, [data, copyToClipboard]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-teal-900 to-emerald-900">
