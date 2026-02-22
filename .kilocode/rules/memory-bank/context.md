@@ -15,6 +15,7 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Memory bank documentation
 - [x] Recipe system for common features
 - [x] Quran web scraper for ghazi369.pythonanywhere.com/surat/[name]
+- [x] All 114 surahs added to quick select dropdown (replaced 10-item button list with full dropdown)
 
 ## Current Structure
 
