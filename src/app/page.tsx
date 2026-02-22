@@ -68,17 +68,121 @@ export default function Home() {
     await navigator.clipboard.writeText(text);
   }, [data]);
 
-  const popularSurahs = [
+  const allSurahs = [
     "الفاتحة",
     "البقرة",
-    "آل عمران",
+    "آل_عمران",
+    "النساء",
+    "المائدة",
+    "الأنعام",
+    "الأعراف",
+    "الأنفال",
+    "التوبة",
     "يونس",
+    "هود",
     "يوسف",
+    "الرعد",
+    "إبراهيم",
+    "الحجر",
+    "النحل",
+    "الإسراء",
     "الكهف",
     "مريم",
+    "طه",
+    "الأنبياء",
+    "الحج",
+    "المؤمنون",
+    "النور",
+    "الفرقان",
+    "الشعراء",
+    "النمل",
+    "القصص",
+    "العنكبوت",
+    "الروم",
+    "لقمان",
+    "السجدة",
+    "الأحزاب",
+    "سبأ",
+    "فاطر",
     "يس",
+    "الصافات",
+    "ص",
+    "الزمر",
+    "غافر",
+    "فصلت",
+    "الشورى",
+    "الزخرف",
+    "الدخان",
+    "الجاثية",
+    "الأحقاف",
+    "محمد",
+    "الفتح",
+    "الحجرات",
+    "ق",
+    "الذاريات",
+    "الطور",
+    "النجم",
+    "القمر",
     "الرحمن",
+    "الواقعة",
+    "الحديد",
+    "المجادلة",
+    "الحشر",
+    "الممتحنة",
+    "الصف",
+    "الجمعة",
+    "المنافقون",
+    "التغابن",
+    "الطلاق",
+    "التحريم",
     "الملك",
+    "القلم",
+    "الحاقة",
+    "المعارج",
+    "نوح",
+    "الجن",
+    "المزمل",
+    "المدثر",
+    "القيامة",
+    "الإنسان",
+    "المر‏سلات",
+    "النبأ",
+    "النازعات",
+    "عبس",
+    "التكوير",
+    "الإنفطار",
+    "المطففين",
+    "الإنشقاق",
+    "البروج",
+    "الطارق",
+    "الأعلى",
+    "الغاشية",
+    "الفجر",
+    "البلد",
+    "الشمس",
+    "الليل",
+    "الضحى",
+    "الشرح",
+    "التين",
+    "العلق",
+    "القدر",
+    "البينة",
+    "الزلزلة",
+    "العاديات",
+    "القارعة",
+    "التكاثر",
+    "العصر",
+    "الهمزة",
+    "الفيل",
+    "قريش",
+    "الماعون",
+    "الكوثر",
+    "الكافرون",
+    "النصر",
+    "المسد",
+    "الإخلاص",
+    "الفلق",
+    "الناس",
   ];
 
   return (
@@ -168,24 +272,19 @@ export default function Home() {
 
           {/* Quick Select */}
           <div className="mt-4">
-            <p className="text-emerald-500 text-xs mb-2">Quick select:</p>
-            <div className="flex flex-wrap gap-2" dir="rtl">
-              {popularSurahs.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => {
-                    setSurahName(s);
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
-                    surahName === s
-                      ? "bg-emerald-500 text-white"
-                      : "bg-emerald-950/60 border border-emerald-700/40 text-emerald-300 hover:border-emerald-500/60 hover:text-white"
-                  }`}
-                >
-                  {s}
-                </button>
+            <p className="text-emerald-500 text-xs mb-2">Quick select (all 114 surahs):</p>
+            <select
+              value={surahName}
+              onChange={(e) => setSurahName(e.target.value)}
+              dir="rtl"
+              className="w-full bg-emerald-950/60 border border-emerald-600/40 rounded-xl px-4 py-3 text-white text-right text-base focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all cursor-pointer"
+            >
+              {allSurahs.map((s, i) => (
+                <option key={s} value={s} className="bg-emerald-950 text-white">
+                  {i + 1}. {s}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
         </div>
 
