@@ -3,15 +3,23 @@
 import { useState, useCallback } from "react";
 import quranData from "@/data/quran.json";
 
+interface VerseNumerics {
+  numWords: number;
+  numChars: number;
+  abjadValue: number;
+}
+
 interface Verse {
   number: number;
   text: string;
+  numerics?: VerseNumerics;
 }
 
 interface SurahData {
   surahNumber: number;
   name: string;
   bismillah: string;
+  bismillahNumerics?: VerseNumerics;
   verses: Verse[];
   rawText: string;
 }
@@ -30,6 +38,30 @@ function numberToArabicIndic(num: number): string {
     .split("")
     .map((d) => digits[parseInt(d)])
     .join("");
+}
+
+/** Small badge showing a numeric stat */
+function StatBadge({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: number;
+  highlight?: boolean;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-mono ${
+        highlight
+          ? "bg-amber-500/20 border border-amber-500/40 text-amber-300"
+          : "bg-emerald-800/50 border border-emerald-600/30 text-emerald-400"
+      }`}
+    >
+      <span className="opacity-70">{label}</span>
+      <span className="font-bold">{value}</span>
+    </span>
+  );
 }
 
 export default function Home() {
@@ -208,13 +240,23 @@ export default function Home() {
                 سُورَةُ {data.name}
               </h2>
               {data.bismillah && (
-                <p
-                  className="text-emerald-200 text-xl mt-3"
-                  dir="rtl"
-                  style={{ fontFamily: "serif" }}
-                >
-                  {data.bismillah}
-                </p>
+                <div className="mt-3">
+                  <p
+                    className="text-emerald-200 text-xl"
+                    dir="rtl"
+                    style={{ fontFamily: "serif" }}
+                  >
+                    {data.bismillah}
+                  </p>
+                  {/* Bismillah numerics */}
+                  {data.bismillahNumerics && (
+                    <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
+                      <StatBadge label="كلمات" value={data.bismillahNumerics.numWords} />
+                      <StatBadge label="حروف" value={data.bismillahNumerics.numChars} />
+                      <StatBadge label="قيمة" value={data.bismillahNumerics.abjadValue} highlight />
+                    </div>
+                  )}
+                </div>
               )}
               <div className="mt-4 flex items-center justify-center gap-6 text-sm text-emerald-400">
                 <span className="flex items-center gap-1.5">
@@ -299,7 +341,7 @@ export default function Home() {
                         </span>
                       </div>
 
-                      {/* Verse Text */}
+                      {/* Verse Text + Numerics */}
                       <div className="flex-1 min-w-0">
                         <p
                           className="text-white text-xl leading-loose text-right"
@@ -308,9 +350,19 @@ export default function Home() {
                         >
                           {verse.text}
                         </p>
-                        <p className="text-emerald-500 text-xs mt-2 text-right">
-                          الآية {numberToArabicIndic(verse.number)} من سورة {data.name}
-                        </p>
+
+                        {/* Numerical stats row */}
+                        {verse.numerics ? (
+                          <div className="flex items-center gap-2 mt-2 flex-wrap justify-end">
+                            <StatBadge label="كلمات" value={verse.numerics.numWords} />
+                            <StatBadge label="حروف" value={verse.numerics.numChars} />
+                            <StatBadge label="قيمة عددية" value={verse.numerics.abjadValue} highlight />
+                          </div>
+                        ) : (
+                          <p className="text-emerald-500 text-xs mt-2 text-right">
+                            الآية {numberToArabicIndic(verse.number)} من سورة {data.name}
+                          </p>
+                        )}
                       </div>
 
                       {/* Copy Button */}
