@@ -14,8 +14,9 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const QURAN_JSON_PATH = path.join(__dirname, '../src/data/quran.json');
 
-// Surahs to process (by surahNumber)
-const TARGET_SURAHS = [1, 57, 104]; // Al-Fatihah, Al-Hadid, Al-Humaza
+// Surahs to process (by surahNumber) - starting from 114 (An-Nas) backwards
+// Excluding 1 (Al-Fatihah), 57 (Al-Hadid), 104 (Al-Humaza) already done
+const TARGET_SURAHS = [71]; // Surah 71 (Nuh)
 
 const DELAY_MS = 800; // delay between requests to be polite
 
