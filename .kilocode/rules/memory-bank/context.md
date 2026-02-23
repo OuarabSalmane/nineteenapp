@@ -96,3 +96,4 @@ export async function GET() {
 |------|---------|
 | Initial | Template created with base setup |
 | 2026-02-22 | Added Quran scraper: API route `/api/scrape?surah=[name]` + full UI with verse parsing |
+| 2026-02-23 | Ran scraper to regenerate quran.json with all 114 surahs (1587.1 KB) |
